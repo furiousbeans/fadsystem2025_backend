@@ -39,6 +39,9 @@ for ($i = 1; $i <= $mon; $i++) {
 }
 $ors_number_sql = implode(" OR ", $ors_number_conditions);
 
+
+
+// ============================ SALARY ============================ //
 // SALARY 1A1
 try
 {
@@ -80,6 +83,53 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['sal1a1_total'] = $row['sal1a1_total'];
 
 }
+
+// SALARY 2a11
+try
+{
+    $stnt = $pdo->prepare("SELECT allotment as sal2a11_allot, 
+                                (
+                                    SELECT SUM(amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month 
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS sal2a11,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS sal2a11_total
+      FROM allotment a WHERE a.uacs = '50101010-01' AND a.allotgroup = '2A1-1' AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['sal2a11_allot'] = $row['sal2a11_allot'];
+    $data['sal2a11'] = $row['sal2a11'];
+    $data['sal2a11_total'] = $row['sal2a11_total'];
+
+}
+// ============================ SALARY ============================ //
+
+
+
+// ============================ PERA ============================ //
 // PERA 1A1
 try
 {
@@ -123,6 +173,57 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['pera1a1'] = $row['pera1a1'];
     $data['pera1a1_total'] = $row['pera1a1_total'];
 }
+
+// PERA 2a11
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS pera2a11_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS pera2a11,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS pera2a11_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50102010-01' 
+                            AND a.allotgroup = '2A1-1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['pera2a11_allot'] = $row['pera2a11_allot'];
+    $data['pera2a11'] = $row['pera2a11'];
+    $data['pera2a11_total'] = $row['pera2a11_total'];
+}
+
+
+// 
+
+// ============================ PERA ============================ //
+
+
 // RA 1A1
 try
 {
@@ -209,6 +310,8 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['ta1a1'] = $row['ta1a1'];
     $data['ta1a1_total'] = $row['ta1a1_total'];
 }
+
+
 // clothing 1A1
 try
 {
@@ -252,6 +355,52 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['cloth1a1'] = $row['cloth1a1'];
     $data['cloth1a1_total'] = $row['cloth1a1_total'];
 }
+// clothing 2a11
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS cloth2a11_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS cloth2a11,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS cloth2a11_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50102040-01' 
+                            AND a.allotgroup = '2A1-1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['cloth2a11_allot'] = $row['cloth2a11_allot'];
+    $data['cloth2a11'] = $row['cloth2a11'];
+    $data['cloth2a11_total'] = $row['cloth2a11_total'];
+}
+
+// 
+
 // PRODUCTIVITY 1A1
 try
 {
@@ -683,10 +832,10 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['hazard1a1'] = $row['hazard1a1'];
     $data['hazard1a1_total'] = $row['hazard1a1_total'];
 }
-// longitivity 1A1
+// longetivity 1A1
 try
 {
-    $stnt = $pdo->prepare("SELECT a.allotment AS longitivity1a1_allot,
+    $stnt = $pdo->prepare("SELECT a.allotment AS longetivity1a1_allot,
                                 (
                                     SELECT SUM(o.amount)
                                     FROM orstbl2023 o
@@ -696,7 +845,7 @@ try
                                     AND o.mfopap = a.allotgroup
                                     AND o.ors_number LIKE :ors_month
                                     AND o.ors_random LIKE :ors_random
-                                ) AS longitivity1a1,
+                                ) AS longetivity1a1,
                                 (
                                     SELECT SUM(o.amount)
                                     FROM orstbl2023 o
@@ -706,7 +855,7 @@ try
                                     AND o.mfopap = a.allotgroup
                                     AND ({$ors_number_sql})
                                     AND o.ors_random LIKE :ors_random
-                                ) AS longitivity1a1_total
+                                ) AS longetivity1a1_total
                             FROM allotment a 
                             WHERE a.uacs = '50102120-01' 
                             AND a.allotgroup = '1A1' 
@@ -722,9 +871,9 @@ catch (Exception $ex){
 }
 http_response_code(200);
 while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
-    $data['longitivity1a1_allot'] = $row['longitivity1a1_allot'];
-    $data['longitivity1a1'] = $row['longitivity1a1'];
-    $data['longitivity1a1_total'] = $row['longitivity1a1_total'];
+    $data['longetivity1a1_allot'] = $row['longetivity1a1_allot'];
+    $data['longetivity1a1'] = $row['longetivity1a1'];
+    $data['longetivity1a1_total'] = $row['longetivity1a1_total'];
 }
 // localtravel 1A1
 try
@@ -1033,10 +1182,809 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
 }
 
 
+// water 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS water1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS water1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS water1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50204010-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['water1a1_allot'] = $row['water1a1_allot'];
+    $data['water1a1'] = $row['water1a1'];
+    $data['water1a1_total'] = $row['water1a1_total'];
+}
+
+// electricity 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS electricity1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS electricity1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS electricity1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50204020-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['electricity1a1_allot'] = $row['electricity1a1_allot'];
+    $data['electricity1a1'] = $row['electricity1a1'];
+    $data['electricity1a1_total'] = $row['electricity1a1_total'];
+}
+
+// postage 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS postage1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS postage1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS postage1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50205010-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['postage1a1_allot'] = $row['postage1a1_allot'];
+    $data['postage1a1'] = $row['postage1a1'];
+    $data['postage1a1_total'] = $row['postage1a1_total'];
+}
+
+// mobile 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS mobile1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS mobile1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS mobile1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50205020-01' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['mobile1a1_allot'] = $row['mobile1a1_allot'];
+    $data['mobile1a1'] = $row['mobile1a1'];
+    $data['mobile1a1_total'] = $row['mobile1a1_total'];
+}
+
+// landline 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS landline1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS landline1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS landline1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50205020-002' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['landline1a1_allot'] = $row['landline1a1_allot'];
+    $data['landline1a1'] = $row['landline1a1'];
+    $data['landline1a1_total'] = $row['landline1a1_total'];
+}
+
+// internet 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS internet1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS internet1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS internet1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50205030-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['internet1a1_allot'] = $row['internet1a1_allot'];
+    $data['internet1a1'] = $row['internet1a1'];
+    $data['internet1a1_total'] = $row['internet1a1_total'];
+}
+
+// building 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS building1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS building1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS building1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50213040-01' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['building1a1_allot'] = $row['building1a1_allot'];
+    $data['building1a1'] = $row['building1a1'];
+    $data['building1a1_total'] = $row['building1a1_total'];
+}
+
+// vehicle 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS vehicle1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS vehicle1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS vehicle1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50213060-01' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['vehicle1a1_allot'] = $row['vehicle1a1_allot'];
+    $data['vehicle1a1'] = $row['vehicle1a1'];
+    $data['vehicle1a1_total'] = $row['vehicle1a1_total'];
+}
+
+// officeequip 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS officeequip1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS officeequip1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS officeequip1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50213050-02' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['officeequip1a1_allot'] = $row['officeequip1a1_allot'];
+    $data['officeequip1a1'] = $row['officeequip1a1'];
+    $data['officeequip1a1_total'] = $row['officeequip1a1_total'];
+}
+
+// extraordinary 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS extraordinary1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS extraordinary1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS extraordinary1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50210030-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['extraordinary1a1_allot'] = $row['extraordinary1a1_allot'];
+    $data['extraordinary1a1'] = $row['extraordinary1a1'];
+    $data['extraordinary1a1_total'] = $row['extraordinary1a1_total'];
+}
+
+// professional 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS professional1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS professional1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS professional1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50211990-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['professional1a1_allot'] = $row['professional1a1_allot'];
+    $data['professional1a1'] = $row['professional1a1'];
+    $data['professional1a1_total'] = $row['professional1a1_total'];
+}
+
+// janitorial 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS janitorial1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS janitorial1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS janitorial1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50212020-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['janitorial1a1_allot'] = $row['janitorial1a1_allot'];
+    $data['janitorial1a1'] = $row['janitorial1a1'];
+    $data['janitorial1a1_total'] = $row['janitorial1a1_total'];
+}
+
+// general 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS general1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS general1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS general1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50212990-99' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['general1a1_allot'] = $row['general1a1_allot'];
+    $data['general1a1'] = $row['general1a1'];
+    $data['general1a1_total'] = $row['general1a1_total'];
+}
+
+// security 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS security1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS security1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS security1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50212030-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['security1a1_allot'] = $row['security1a1_allot'];
+    $data['security1a1'] = $row['security1a1'];
+    $data['security1a1_total'] = $row['security1a1_total'];
+}
+
+// fidelity 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS fidelity1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS fidelity1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS fidelity1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50215020-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['fidelity1a1_allot'] = $row['fidelity1a1_allot'];
+    $data['fidelity1a1'] = $row['fidelity1a1'];
+    $data['fidelity1a1_total'] = $row['fidelity1a1_total'];
+}
+
+// insurance 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS insurance1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS insurance1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS insurance1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50215030-00' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['insurance1a1_allot'] = $row['insurance1a1_allot'];
+    $data['insurance1a1'] = $row['insurance1a1'];
+    $data['insurance1a1_total'] = $row['insurance1a1_total'];
+}
+
+// ictsoftware 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS ictsoftware1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS ictsoftware1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS ictsoftware1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50299070-01' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['ictsoftware1a1_allot'] = $row['ictsoftware1a1_allot'];
+    $data['ictsoftware1a1'] = $row['ictsoftware1a1'];
+    $data['ictsoftware1a1_total'] = $row['ictsoftware1a1_total'];
+}
+
+// othersub 1A1
+try
+{
+    $stnt = $pdo->prepare("SELECT a.allotment AS othersub1a1_allot,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND o.ors_number LIKE :ors_month
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS othersub1a1,
+                                (
+                                    SELECT SUM(o.amount)
+                                    FROM orstbl2023 o
+                                    WHERE o.iscontinuing = 0 
+                                    AND o.isactive = 1 
+                                    AND o.uacs = a.uacs 
+                                    AND o.mfopap = a.allotgroup
+                                    AND ({$ors_number_sql})
+                                    AND o.ors_random LIKE :ors_random
+                                ) AS othersub1a1_total
+                            FROM allotment a 
+                            WHERE a.uacs = '50299070-99' 
+                            AND a.allotgroup = '1A1' 
+                            AND a.allotyear = :ors_year") ;
+    $stnt->execute([
+        ':ors_month' => $saobmonth . '-%',
+        ':ors_year' => $saobyear,
+        ':ors_random' => 'DOC-' . $saobyear . '-%'
+    ]);;
+}
+catch (Exception $ex){
+    die("Failed to run query". $ex);
+}
+http_response_code(200);
+while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    $data['othersub1a1_allot'] = $row['othersub1a1_allot'];
+    $data['othersub1a1'] = $row['othersub1a1'];
+    $data['othersub1a1_total'] = $row['othersub1a1_total'];
+}
+
+
+
 // 
+
 
 // Set query results
 echo json_encode($data);
 
 $stnt = null;
 $pdo = null;
+
+
+
+//

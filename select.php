@@ -180,7 +180,19 @@ if(isset($_GET['readProject'])){
   $data = array();
   try
   {
-      $stnt = $pdo->prepare("SELECT * FROM projectstbl2025");
+      $stnt = $pdo->prepare("SELECT 
+    p.prj_id,
+    p.prj_div,
+    p.prj_title,
+    p.prj_fund,
+    SUM(l.lib_allot) AS total_allotment
+FROM 
+    projectstbl2025 p
+JOIN 
+    libtbl2025 l ON p.prj_id = l.prj_id
+GROUP BY 
+    p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+ORDER BY p.prj_id;");
       $stnt->execute();
       // 
   }
@@ -190,7 +202,7 @@ if(isset($_GET['readProject'])){
 
   http_response_code(200);
   while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
-      $data[] = array("idvalue"=> $row['prj_id'], "label"=> $row['prj_title'], "prjfund"=>$row['prj_fund']);
+      $data[] = $row;
   }
 
   echo json_encode($data);
@@ -270,9 +282,11 @@ if(isset($_GET['readORSpayee'])){
                                       ors.amount, 
                                       ors.ors_number,
                                       ors.particulars,
-                                      ors.details
-                                FROM orstbl2023 as ors INNER JOIN payeedb as pay ON pay.payeeid = ors.payeeid
-                                WHERE ors_random = ?") ;
+                                      ors.details,
+                                      lib.lib_id
+                                FROM orstbl2023 as ors INNER JOIN payeedb AS pay ON pay.payeeid = ors.payeeid
+LEFT JOIN orstbl_libitems AS lib ON lib.ors_random = ors.ors_random
+WHERE ors.ors_random = ?") ;
         $params = array($refnum);
         $stnt->execute($params);
     }
@@ -318,3 +332,42 @@ if(isset($_GET['readORSpayee_particulars'])){
     $stnt = null;
     $pdo = null;
   }
+
+
+//   GET LIB Items
+if (isset($_GET['getLibItems']) && isset($_POST['refnum'])) {
+    $data = array();
+    $refnum = $_POST['refnum'];
+    try
+    {
+        $stnt = $pdo->prepare("SELECT
+    t2.lib_id,
+	t2.lib_title,
+    t2.lib_allot,
+    COALESCE(SUM(t1.amount), 0) AS total_amount,
+    t2.lib_allot - COALESCE(SUM(t1.amount), 0) AS balance
+FROM
+    libtbl2025 t2
+LEFT JOIN orstbl_libitems t3 ON t2.lib_id = t3.lib_id
+LEFT JOIN orstbl2023 t1 ON t3.ors_id = t1.ors_id
+WHERE
+    t2.prj_id = ?
+GROUP BY
+    t2.lib_id, t2.lib_allot") ;
+        $params = array($refnum);
+        $stnt->execute($params);
+    }
+  
+    catch (Exception $ex){
+        die("Failed to run query". $ex);
+    }
+  
+    http_response_code(200);
+    while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+        $data[] = $row;
+    }
+    echo json_encode($data);
+  
+    $stnt = null;
+    $pdo = null;
+}
