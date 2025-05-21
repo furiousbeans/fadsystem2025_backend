@@ -270,7 +270,8 @@ if(isset($_GET['readORSpayee'])){
     $refnum = $_POST['refnum'];
     try
     {
-        $stnt = $pdo->prepare("SELECT pay.payeeName, 
+        $stnt = $pdo->prepare("SELECT ors.ors_id,
+                                      pay.payeeName, 
                                       pay.payeeaddr, 
                                       pay.payeetin, 
                                       pay.payeeacctnum, 
@@ -283,9 +284,10 @@ if(isset($_GET['readORSpayee'])){
                                       ors.ors_number,
                                       ors.particulars,
                                       ors.details,
-                                      lib.lib_id
+                                      ors.lib_id,
+                                      lib25.lib_title
                                 FROM orstbl2023 as ors INNER JOIN payeedb AS pay ON pay.payeeid = ors.payeeid
-LEFT JOIN orstbl_libitems AS lib ON lib.ors_random = ors.ors_random
+LEFT JOIN libtbl2025 AS lib25 ON lib25.lib_id = ors.lib_id
 WHERE ors.ors_random = ?") ;
         $params = array($refnum);
         $stnt->execute($params);
@@ -342,18 +344,17 @@ if (isset($_GET['getLibItems']) && isset($_POST['refnum'])) {
     {
         $stnt = $pdo->prepare("SELECT
     t2.lib_id,
-	t2.lib_title,
+    t2.lib_title,
     t2.lib_allot,
     COALESCE(SUM(t1.amount), 0) AS total_amount,
     t2.lib_allot - COALESCE(SUM(t1.amount), 0) AS balance
 FROM
     libtbl2025 t2
-LEFT JOIN orstbl_libitems t3 ON t2.lib_id = t3.lib_id
-LEFT JOIN orstbl2023 t1 ON t3.ors_id = t1.ors_id
+LEFT JOIN orstbl2023 t1 ON t2.lib_id = t1.lib_id
 WHERE
     t2.prj_id = ?
 GROUP BY
-    t2.lib_id, t2.lib_allot") ;
+    t2.lib_id, t2.lib_title, t2.lib_allot") ;
         $params = array($refnum);
         $stnt->execute($params);
     }
@@ -371,3 +372,53 @@ GROUP BY
     $stnt = null;
     $pdo = null;
 }
+
+
+
+if(isset($_GET['readProjectFunding'])){
+  $data = array();
+  try
+  {
+      $stnt = $pdo->prepare("SELECT DISTINCT prj_fund FROM projects ORDER BY prj_fund ASC");
+      $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+      $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund']);
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+
+}
+
+if (isset($_GET['readLIBItemList'])) {
+  $data = array();
+  try
+  {
+      $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource LIKE '%HR' ORDER BY lib_id ASC");
+        $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+      $data[] = array("label"=> $row['lib_title'],"value"=>$row['lib_id']);
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+
+}
+
+
