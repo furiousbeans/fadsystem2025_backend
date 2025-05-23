@@ -402,7 +402,7 @@ if (isset($_GET['readLIBItemList'])) {
   $data = array();
   try
   {
-      $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource LIKE '%HR' ORDER BY lib_id ASC");
+      $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource LIKE '2A1-106' ORDER BY lib_id ASC");
         $stnt->execute();
   }
   catch (Exception $ex){
