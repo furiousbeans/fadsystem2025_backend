@@ -38,6 +38,55 @@ require("connect.php");
 
 
 
+
+
+if(isset($_GET['approveORS'])){
+
+
+    $last_numset = $pdo->prepare("SELECT orsnum_id, ors_numset FROM orsnum_tbl ORDER BY orsnum_id DESC LIMIT 1;");
+    $last_numset->execute();
+    while ($last_rowset = $last_numset->fetch(PDO::FETCH_ASSOC)){
+      $lastnumset = $last_rowset["ors_numset"]+1;
+      $lastid = $last_rowset["orsnum_id"]+1;
+    }
+
+    
+    // $orsnumset = $_POST['orsnumset'];
+    $refnum = $_POST['refnum'];
+    $orsnumtxt = $_POST['orsnumtxt'];
+    $dateApproved =date("Y-m-d H:i:s");
+
+
+    $min = 1;
+    $max = 9999;
+    $orsRand = str_pad($lastnumset, strlen((string)$max), '0', STR_PAD_LEFT);
+    $orsNum = date("Y-m-") . $orsRand;
+
+    $result = false; 
+
+    try{
+    	$stnt1 = $pdo->prepare("UPDATE orstbl2023 SET ors_number=?, isapproved=?, dateapproved=? WHERE ors_random = ?;");
+	    $params1 = array($orsnumtxt, 1, $dateApproved, $refnum);
+	    $result1 = $stnt1->execute($params1);
+
+	    $stnt2 = $pdo->prepare("INSERT INTO orsnum_tbl(orsnum_id, ors_refnum, orsnumber, ors_numset) VALUES (?,?,?,?);");
+	    $params2 = array($lastid, $refnum, $orsnumtxt, $lastnumset);
+	    $result2 = $stnt2->execute($params2);
+
+
+	    if ($result1 && $result2) {
+	        $result = true; 
+	        echo json_encode($result);
+	    }
+    } catch (PDOException $e) {
+	    echo "Error: " . $e->getMessage();
+	}
+
+};
+
+
+
+
 if(isset($_GET['updateORSrow'])){
   $orsRowID = $_POST['orsRowID'];
 

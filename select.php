@@ -185,15 +185,51 @@ if(isset($_GET['readProject'])){
     p.prj_div,
     p.prj_title,
     p.prj_fund,
-    SUM(l.lib_allot) AS total_allotment
+    SUM(l.lib_allot) AS total_allotment,
+    (
+        SELECT 
+            SUM(o.amount)
+        FROM 
+            orstbl2023 o
+        WHERE 
+            o.mfopap = p.prj_fund
+			AND o.ors_random LIKE '%2025%'
+    ) AS total_obli,
+	(
+        SUM(l.lib_allot) - (
+            SELECT 
+                SUM(o.amount)
+            FROM 
+                orstbl2023 o
+            WHERE 
+                o.mfopap = p.prj_fund
+                AND o.ors_random LIKE '%2025%'
+        )
+    ) AS balance
 FROM 
     projectstbl2025 p
-JOIN 
+LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
       $stnt->execute();
+
+
+//       $stnt = $pdo->prepare("SELECT 
+//     p.prj_id,
+//     p.prj_div,
+//     p.prj_title,
+//     p.prj_fund,
+//     SUM(l.lib_allot) AS total_allotment
+// FROM 
+//     projectstbl2025 p
+// JOIN 
+//     libtbl2025 l ON p.prj_id = l.prj_id
+// GROUP BY 
+//     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+// ORDER BY p.prj_id;");
+//       $stnt->execute();
       // 
   }
   catch (Exception $ex){
@@ -292,8 +328,6 @@ WHERE ors.ors_random = ?") ;
         $params = array($refnum);
         $stnt->execute($params);
     }
-  
-  
   
     catch (Exception $ex){
         die("Failed to run query". $ex);
@@ -399,11 +433,14 @@ if(isset($_GET['readProjectFunding'])){
 }
 
 if (isset($_GET['readLIBItemList'])) {
+  $projectID = $_POST['prjID'];
   $data = array();
   try
   {
-      $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource LIKE '2A1-106' ORDER BY lib_id ASC");
-        $stnt->execute();
+      $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource = ? ORDER BY lib_id ASC");
+      $params = array($projectID);
+      $stnt->execute($params);
+
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
