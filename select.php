@@ -214,23 +214,177 @@ GROUP BY
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
       $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+      $data[] = $row;
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+}
 
 
-//       $stnt = $pdo->prepare("SELECT 
-//     p.prj_id,
-//     p.prj_div,
-//     p.prj_title,
-//     p.prj_fund,
-//     SUM(l.lib_allot) AS total_allotment
-// FROM 
-//     projectstbl2025 p
-// JOIN 
-//     libtbl2025 l ON p.prj_id = l.prj_id
-// GROUP BY 
-//     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
-// ORDER BY p.prj_id;");
-//       $stnt->execute();
-      // 
+if(isset($_GET['readProjectFAD'])){
+  $data = array();
+  try
+  {
+      $stnt = $pdo->prepare("SELECT 
+    p.prj_id,
+    p.prj_div,
+    p.prj_title,
+    p.prj_fund,
+    SUM(l.lib_allot) AS total_allotment,
+    (
+        SELECT 
+            SUM(o.amount)
+        FROM 
+            orstbl2023 o
+        WHERE 
+            o.mfopap = p.prj_fund
+			AND o.ors_random LIKE '%2025%'
+    ) AS total_obli,
+	(
+        SUM(l.lib_allot) - (
+            SELECT 
+                SUM(o.amount)
+            FROM 
+                orstbl2023 o
+            WHERE 
+                o.mfopap = p.prj_fund
+                AND o.ors_random LIKE '%2025%'
+        )
+    ) AS balance
+FROM 
+    projectstbl2025 p
+LEFT JOIN 
+    libtbl2025 l ON p.prj_id = l.prj_id
+WHERE 
+    p.prj_div = 'FAD'
+GROUP BY 
+    p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+ORDER BY p.prj_id;");
+      $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+      $data[] = $row;
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+}
+
+
+if(isset($_GET['readProjectODAC'])){
+  $data = array();
+  try
+  {
+      $stnt = $pdo->prepare("SELECT 
+    p.prj_id,
+    p.prj_div,
+    p.prj_title,
+    p.prj_fund,
+    SUM(l.lib_allot) AS total_allotment,
+    (
+        SELECT 
+            SUM(o.amount)
+        FROM 
+            orstbl2023 o
+        WHERE 
+            o.mfopap = p.prj_fund
+			AND o.ors_random LIKE '%2025%'
+    ) AS total_obli,
+	(
+        SUM(l.lib_allot) - (
+            SELECT 
+                SUM(o.amount)
+            FROM 
+                orstbl2023 o
+            WHERE 
+                o.mfopap = p.prj_fund
+                AND o.ors_random LIKE '%2025%'
+        )
+    ) AS balance
+FROM 
+    projectstbl2025 p
+LEFT JOIN 
+    libtbl2025 l ON p.prj_id = l.prj_id
+WHERE 
+    p.prj_div = 'OD'
+GROUP BY 
+    p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+ORDER BY p.prj_id;");
+      $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+      $data[] = $row;
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+}
+
+
+if(isset($_GET['readProjectSTSD'])){
+  $data = array();
+  try
+  {
+      $stnt = $pdo->prepare("SELECT 
+    p.prj_id,
+    p.prj_div,
+    p.prj_title,
+    p.prj_fund,
+    SUM(l.lib_allot) AS total_allotment,
+    (
+        SELECT 
+            SUM(o.amount)
+        FROM 
+            orstbl2023 o
+        WHERE 
+            o.mfopap = p.prj_fund
+			AND o.ors_random LIKE '%2025%'
+    ) AS total_obli,
+	(
+        SUM(l.lib_allot) - (
+            SELECT 
+                SUM(o.amount)
+            FROM 
+                orstbl2023 o
+            WHERE 
+                o.mfopap = p.prj_fund
+                AND o.ors_random LIKE '%2025%'
+        )
+    ) AS balance
+FROM 
+    projectstbl2025 p
+LEFT JOIN 
+    libtbl2025 l ON p.prj_id = l.prj_id
+WHERE 
+    p.prj_div = 'STSD'
+GROUP BY 
+    p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+ORDER BY p.prj_id;");
+      $stnt->execute();
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);

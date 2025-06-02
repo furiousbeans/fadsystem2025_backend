@@ -1,10 +1,12 @@
 <?php
 
-require("connect.php");
+include "connect.php";
 include "dbconn.php";
 
 
-if(isset($_GET['printORS'])){
+if(isset($_GET['printBURS'])){
+
+// 
 
 // Initialize MPDF
 // =================================================================================================== //
@@ -20,14 +22,11 @@ if(isset($_GET['printORS'])){
 // Get ORS number
 // =================================================================================================== //
     $orsidtest = $_POST["id"];
+    $signame = $_POST["signame"];
+    $sigposition = $_POST["sigposition"];
 // =================================================================================================== //
 // Get ORS number
 
-// $pg_host = "localhost";
-// $pg_port = "5432";
-// $pg_dbname = "testdb";
-// $pg_user = "postgres";
-// $pg_password = "postgres";
 
 
 // Queries
@@ -57,12 +56,11 @@ if(isset($_GET['printORS'])){
         $pg_amount = $pg_row["amount"];
     } 
 
-
 // =================================================================================================== //
 // Queries
 
 
-//      
+// 
 
 
 // Etc
@@ -82,7 +80,7 @@ $html1 =
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ORS&nbsp;'.$orsidtest.'</title>
+    <title>BURS&nbsp;'.$orsidtest.'</title>
     <style>
         * {
             font-family: Arial, Helvetica, sans-serif;
@@ -99,14 +97,14 @@ $html1 =
 
     <table id="headingtbl" style="width: 100%;">
         <tr id="headingtbl_tr">
-            <td id="headtbl_td" style="text-align: right;font-style: italic; font-family:Times, serif;">Appendix 11</td>
+            <td id="headtbl_td" style="text-align: right;font-style: italic; font-family:Times, serif;">Appendix 14</td>
         </tr>
     </table>  
 
     <table cellspacing="0" style="font-size: 12; width: 100%;">
         <tbody>
             <tr>
-                <td style="width: 70%; border:1; border-width: 2px 0px 0px 2px; font-size: 15; font-weight: bold;"><center>OBLIGATION REQUEST AND STATUS</center></td>
+                <td style="width: 70%; border:1; border-width: 2px 0px 0px 2px; font-size: 15; font-weight: bold;"><center>BUDGET UTILIZATION REQUEST AND STATUS</center></td>
                 <td style=" border:1; border-width: 2px 2px 0px 2px; font-weight: bold;">Serial No.:</td>
             </tr>
             <tr>
@@ -173,7 +171,7 @@ $html1 =
 
                 $pg_query = "SELECT * 
                             FROM orstbl2023
-                            WHERE ors_random ='$orsidtest' 
+                            WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -210,8 +208,7 @@ $html1 =
 
                 $pg_query = "SELECT * 
                             FROM orstbl2023
-                            WHERE ors_random ='$orsidtest'
-                            ORDER BY ors_id ASC";
+                            WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
                 
@@ -228,7 +225,7 @@ $html1 =
 
                 $pg_query = "SELECT * 
                             FROM orstbl2023
-                            WHERE ors_random ='$orsidtest'
+                            WHERE ors_random ='$orsidtest' 
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -412,14 +409,15 @@ $html1 =
 // =================================================================================================== //
 // Print Form
 
-// $finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . "<br><br>( <i>Continuing</i> )" . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
-$finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
+
+
+$finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . $html6;
+
 
 // Print Document Function
 // =================================================================================================== //
     $mpdf->AddPageByArray([
         'sheet-size' => array(210, 297),
-        // 'sheet-size' => array(216, 278),
         'orientation' => 'P',
         'margin-left' => 7,
         'margin-right' => 7,
@@ -433,7 +431,9 @@ $finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>
 // =================================================================================================== //
 // Print Document Function
 
+
+
 }
 
-?>	
+?>  
  
