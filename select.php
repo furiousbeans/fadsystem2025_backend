@@ -260,7 +260,18 @@ if(isset($_GET['readProjectFAD'])){
                 o.mfopap = p.prj_fund
                 AND o.ors_random LIKE '%2025%'
         )
-    ) AS balance
+    ) AS balance,
+    (
+        (
+            SELECT 
+                SUM(o.amount)
+            FROM 
+                orstbl2023 o
+            WHERE 
+                o.mfopap = p.prj_fund
+                AND o.ors_random LIKE '%2025%'
+        ) / NULLIF(SUM(l.lib_allot), 0)
+    ) * 100 AS balance_percentage
 FROM 
     projectstbl2025 p
 LEFT JOIN 
