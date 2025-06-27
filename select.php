@@ -249,6 +249,7 @@ if(isset($_GET['readProjectFAD'])){
         WHERE 
             o.mfopap = p.prj_fund
 			AND o.ors_random LIKE '%2025%'
+                AND o.isapproved = 1
     ) AS total_obli,
 	(
         SUM(l.lib_allot) - (
@@ -259,6 +260,7 @@ if(isset($_GET['readProjectFAD'])){
             WHERE 
                 o.mfopap = p.prj_fund
                 AND o.ors_random LIKE '%2025%'
+                AND o.isapproved = 1
         )
     ) AS balance,
     (
@@ -270,6 +272,7 @@ if(isset($_GET['readProjectFAD'])){
             WHERE 
                 o.mfopap = p.prj_fund
                 AND o.ors_random LIKE '%2025%'
+                AND o.isapproved = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
     ) * 100 AS balance_percentage
 FROM 
@@ -298,6 +301,7 @@ ORDER BY p.prj_id;");
   $pdo = null;
 }
 
+// 
 
 if(isset($_GET['readProjectODAC'])){
   $data = array();
@@ -419,7 +423,7 @@ if(isset($_GET['readMFOPAP'])){
   $data = array();
   try
   {
-      $stnt = $pdo->prepare("SELECT DISTINCT prj_fund, prj_title FROM projects ORDER BY prj_fund ASC");
+      $stnt = $pdo->prepare("SELECT DISTINCT prj_fund FROM projects ORDER BY prj_fund ASC");
     //   $stnt = $pdo->prepare("SELECT DISTINCT prj_fund FROM projects ORDER BY prj_fund ASC");
       $stnt->execute();
   }
@@ -429,8 +433,8 @@ if(isset($_GET['readMFOPAP'])){
 
   http_response_code(200);
   while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
-      $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund'], "title"=>$row['prj_title']);
-    //   $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund']);
+    //   $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund'], "title"=>$row['prj_title']);
+      $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund']);
       // $data[] = array("label"=> $row['prj_title'],"value"=>$row['prj_id']);
   }
 

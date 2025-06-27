@@ -814,7 +814,7 @@ try
                                     AND o.ors_random LIKE :ors_random
                                 ) AS hazard1a1_total
                             FROM allotment a 
-                            WHERE a.uacs = '50102110-01' 
+                            WHERE a.uacs = '50102110-04' 
                             AND a.allotgroup = '1A1' 
                             AND a.allotyear = :ors_year") ;
     $stnt->execute([
@@ -857,7 +857,7 @@ try
                                     AND o.ors_random LIKE :ors_random
                                 ) AS longetivity1a1_total
                             FROM allotment a 
-                            WHERE a.uacs = '50102120-01' 
+                            WHERE a.uacs = '50102120-03' 
                             AND a.allotgroup = '1A1' 
                             AND a.allotyear = :ors_year") ;
     $stnt->execute([
@@ -1383,7 +1383,7 @@ try
                                     AND o.ors_random LIKE :ors_random
                                 ) AS landline1a1_total
                             FROM allotment a 
-                            WHERE a.uacs = '50205020-002' 
+                            WHERE a.uacs = '50205020-02' 
                             AND a.allotgroup = '1A1' 
                             AND a.allotyear = :ors_year") ;
     $stnt->execute([
@@ -1974,10 +1974,7 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['othersub1a1_total'] = $row['othersub1a1_total'];
 }
 
-
-
 // 
-
 
 // Set query results
 echo json_encode($data);
@@ -1988,3 +1985,5 @@ $pdo = null;
 
 
 //
+
+// 
