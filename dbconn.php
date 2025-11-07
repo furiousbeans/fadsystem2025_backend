@@ -2,10 +2,9 @@
 
 $pg_host = "localhost";
 $pg_port = "5432";
-$pg_dbname = "testdb";
+$pg_dbname = "fadsystemdb";
 $pg_user = "postgres";
 $pg_password = "postgres";
-// $pg_password = "123456789";
 
 
 // MISDB

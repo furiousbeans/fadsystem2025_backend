@@ -54,15 +54,13 @@ if(isset($_GET['newORS'])){
     $respcen = $_POST['respcen'];
 
     $min = 1;
-    $max = 1000;
+    $max = 9999;
 
     $curYear = date("Y");
 
-    $orsnumber = rand($min, $max);
+    // $orsnumber = rand($min, $max);
     $orsRand = str_pad($lastnum, strlen((string)$max), '0', STR_PAD_LEFT);
     $orsRandom = "DOC-".$curYear."-".$orsRand;
-
-
 
     $dateCreated =date("Y-m-d H:i:s");
 
@@ -73,22 +71,22 @@ if(isset($_GET['newORS'])){
         $mfopap = $mfo[$i];
         $respcenter = $respcen[$i];
 
-        // echo "payee id: " . $payeeid . "<br>";
-        // echo "refnum: " . $orsRandom . "<br>";
-        // echo "uacs: " . $uac . "<br>";
-        // echo "mfo: " . $mfopap . "<br>";
-        // echo "amount: " . $amt . "<br>";
-        // echo "particulars: " . $particulars . "<br>";
-        // echo "details: " . $details . "<br>";
-        // echo "user: " . $user . "<br>";
-        // echo "division: " . $division . "<br>";
-        // echo "datenow: " . $dateCreated . "<br>";
-        // echo "lastnum: " . $lastnum . "<br>";
-        // echo "address: " . $address . "<br>";
-        // echo "tin: " . $tin . "<br>";
-        // echo "tax2: " . $tax2 . "<br>";
-        // echo "tax5: " . $tax5 . "<br>";
-        // echo "resp: " . $repcen . "<br>";
+        echo "payee id: " . $payeeid . "<br>";
+        echo "refnum: " . $orsRandom . "<br>";
+        echo "uacs: " . $uac . "<br>";
+        echo "mfo: " . $mfopap . "<br>";
+        echo "amount: " . $amt . "<br>";
+        echo "particulars: " . $particulars . "<br>";
+        echo "details: " . $details . "<br>";
+        echo "user: " . $user . "<br>";
+        echo "division: " . $division . "<br>";
+        echo "datenow: " . $dateCreated . "<br>";
+        echo "lastnum: " . $lastnum . "<br>";
+        echo "address: " . $address . "<br>";
+        echo "tin: " . $tin . "<br>";
+        echo "tax2: " . $tax2 . "<br>";
+        echo "tax5: " . $tax5 . "<br>";
+        echo "resp: " . $repcen . "<br>";
 
         $stnt = $pdo->prepare("INSERT INTO orstbl2023(payeeid, ors_random, amount, particulars, datecreated, uacs, mfopap, ors_numset, createdby, division, address, tin,  responcenter) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         $params = array($payeeid, $orsRandom,  $amt, $particulars, $dateCreated, $uac, $mfopap, $lastnum, $user, $division, $address, $tin,  $respcenter);

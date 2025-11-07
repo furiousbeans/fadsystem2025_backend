@@ -1,14 +1,16 @@
 <?php
 
-require("connect.php");
-include "dbconn.php";
+include "../connect.php";
+include "../dbconn.php";
 
 
-if(isset($_GET['printORS'])){
+if(isset($_GET['printBURS'])){
+
+// 
 
 // Initialize MPDF
 // =================================================================================================== //
-    require_once __DIR__ . '../vendor/autoload.php';
+    require_once __DIR__ . '../../vendor/autoload.php';
     $mpdf = new \Mpdf\Mpdf(['format' => [216, 330]]);
     $mpdf->autoPageBreak = false;
     $mpdf = new \Mpdf\Mpdf(['default_font' => 'arial']);
@@ -20,20 +22,19 @@ if(isset($_GET['printORS'])){
 // Get ORS number
 // =================================================================================================== //
     $orsidtest = $_POST["id"];
+    // $signame = $_POST["signame"];
+    // $sigposition = $_POST["sigposition"];
+    $signame = "vince m. albuera";
+    $sigposition = "Project Technical Specialist I";
 // =================================================================================================== //
 // Get ORS number
 
-// $pg_host = "localhost";
-// $pg_port = "5432";
-// $pg_dbname = "testdb";
-// $pg_user = "postgres";
-// $pg_password = "postgres";
 
 
 // Queries
 // =================================================================================================== //
     $pg_query = "SELECT * 
-        FROM orstbl2023 AS o
+        FROM orstbl2025 AS o
         INNER JOIN payeedb AS p ON o.payeeid = p.payeeid
         WHERE o.ors_random ='$orsidtest' LIMIT 1";
     $pg_result = pg_query($pg_connection, $pg_query);
@@ -45,8 +46,8 @@ if(isset($_GET['printORS'])){
     while ($pg_row = pg_fetch_assoc($pg_result)) {
         $pg_payeename = $pg_row["payeename"];
         $pg_ors_number = $pg_row["ors_number"];
-        $pg_office = "";
-        // $pg_office = $pg_row["office"];
+        // $pg_office = "";
+        $pg_office = $pg_row["payeeoffice"];
         $pg_address = $pg_row["payeeaddr"];
         $pg_adr = $pg_row["address"];
         $pg_div = $pg_row["division"];
@@ -57,12 +58,11 @@ if(isset($_GET['printORS'])){
         $pg_amount = $pg_row["amount"];
     } 
 
-
 // =================================================================================================== //
 // Queries
 
 
-//      
+// 
 
 
 // Etc
@@ -82,7 +82,7 @@ $html1 =
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ORS&nbsp;'.$orsidtest.'</title>
+    <title>BURS&nbsp;'.$orsidtest.'</title>
     <style>
         * {
             font-family: Arial, Helvetica, sans-serif;
@@ -99,14 +99,14 @@ $html1 =
 
     <table id="headingtbl" style="width: 100%;">
         <tr id="headingtbl_tr">
-            <td id="headtbl_td" style="text-align: right;font-style: italic; font-family:Times, serif;">Appendix 11</td>
+            <td id="headtbl_td" style="text-align: right;font-style: italic; font-family:Times, serif;">Appendix 14</td>
         </tr>
     </table>  
 
     <table cellspacing="0" style="font-size: 12; width: 100%;">
         <tbody>
             <tr>
-                <td style="width: 70%; border:1; border-width: 2px 0px 0px 2px; font-size: 15; font-weight: bold;"><center>OBLIGATION REQUEST AND STATUS</center></td>
+                <td style="width: 70%; border:1; border-width: 2px 0px 0px 2px; font-size: 15; font-weight: bold;"><center>BUDGET UTILIZATION REQUEST AND STATUS</center></td>
                 <td style=" border:1; border-width: 2px 2px 0px 2px; font-weight: bold;">Serial No.:</td>
             </tr>
             <tr>
@@ -157,7 +157,7 @@ $html1 =
             </tr>
             <tr>
                 <td style="width:15%; height: 400px; border:1; border-width: 0px 0px 0px 2px; vertical-align: top;"><center>';
-                $pg_query = "SELECT responcenter FROM orstbl2023 WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
+                $pg_query = "SELECT division FROM orstbl2025 WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
                 
@@ -166,14 +166,14 @@ $html1 =
                 }
                 $showrespcent = array();
                 while ($pg_row = pg_fetch_assoc($pg_result)) {
-                    $showrespcent[] = $pg_row['responcenter'] .'<br>';
+                    $showrespcent[] = $pg_row['division'] .'<br>';
                 }
                 $htmlres='</center></td>
                 <td style="width:35%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;">';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
-                            WHERE ors_random ='$orsidtest' 
+                            FROM orstbl2025
+                            WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -190,7 +190,7 @@ $html1 =
                 <td style="width:20%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;"><center>';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
@@ -207,12 +207,10 @@ $html1 =
                 $html3 = '</center></td>
                 <td style="width:15%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;"><center>';
 
-                // 
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
-                            WHERE ors_random ='$orsidtest'
-                            ORDER BY ors_id ASC";
+                            FROM orstbl2025
+                            WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
                 
@@ -228,8 +226,8 @@ $html1 =
                 <td style="width:15%; height: 400px; border:1; border-width: 0px 2px 0px 1px; vertical-align: top;overflow: wrap"><center>';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
-                            WHERE ors_random ='$orsidtest'
+                            FROM orstbl2025
+                            WHERE ors_random ='$orsidtest' 
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -242,7 +240,6 @@ $html1 =
                     $showamount[] = number_format($pg_row['amount'],2) .'<br>';
                 }
 
-                // 
 
                 $html5 = '</center></td>
             </tr>
@@ -255,7 +252,7 @@ $html1 =
                 <td style="width:15%; border:1; border-width: 0px 2px 2px 1px; vertical-align: bottom;text-align:right; font-weight:bold; font-size: 14px;overflow: wrap">';
 
                 $pg_query = "SELECT SUM(amount) as totalsum
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -304,9 +301,9 @@ $html1 =
 
             <tr>
                 <td style="width:10%; font-size:11px; height: 28px; border:1; border-width: 0px 0px 0px 2px">Printed Name</td>
-                <td style="width:40%; font-size:11px; height: 28px; border:1; border-width: 0px 0px 1px 0px;"><center>'.strtoupper($signame).'</center></td>
+                <td style="width:40%; font-size:11px; height: 28px; border:1; border-width: 0px 0px 1px 0px;"><center><b>'.strtoupper($signame).'</b></center></td>
                 <td style="width:10%; font-size:11px; height: 28px; border:1; border-width: 0px 0px 0px 2px">Printed Name</td>
-                <td style="width:40%; font-size:11px; height: 28px; border:1; border-width: 0px 2px 1px 0px"><center>MARY ANN A. MANILA</center></td>
+                <td style="width:40%; font-size:11px; height: 28px; border:1; border-width: 0px 2px 1px 0px"><center><b>MARY ANN A. MANILA</b></center></td>
             </tr>
             <tr>
                 <td style="width:10%; font-size:11px; height: 28px; border:1; border-width: 0px 0px 0px 2px;">Position</td>
@@ -414,14 +411,15 @@ $html1 =
 // =================================================================================================== //
 // Print Form
 
-// $finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . "<br><br>( <i>Continuing</i> )" . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
-$finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
+
+
+$finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . $html6;
+
 
 // Print Document Function
 // =================================================================================================== //
     $mpdf->AddPageByArray([
         'sheet-size' => array(210, 297),
-        // 'sheet-size' => array(216, 278),
         'orientation' => 'P',
         'margin-left' => 7,
         'margin-right' => 7,
@@ -435,7 +433,9 @@ $finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>
 // =================================================================================================== //
 // Print Document Function
 
+
+
 }
 
-?>	
+?>  
  

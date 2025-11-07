@@ -1,13 +1,15 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
+$http_origin = $_SERVER['HTTP_ORIGIN'];
+header("Access-Control-Allow-Origin: $http_origin");
 header("Access-Control-Allow-Methods: POST, GET");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+header("Access-Control-Allow-Credentials: true");
 
 $pg_host = "localhost";
 $pg_port = "5432";
-$pg_dbname = "testdb";
+$pg_dbname = "fadsystemdb";
 $pg_user = "postgres";
 $pg_password = "postgres";
 

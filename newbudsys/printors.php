@@ -1,14 +1,14 @@
 <?php
+require("../connect.php");
+include "../dbconn.php";
 
-require("connect.php");
-include "dbconn.php";
 
 
 if(isset($_GET['printORS'])){
 
 // Initialize MPDF
 // =================================================================================================== //
-    require_once __DIR__ . '../vendor/autoload.php';
+    require_once __DIR__ . '../../vendor/autoload.php';
     $mpdf = new \Mpdf\Mpdf(['format' => [216, 330]]);
     $mpdf->autoPageBreak = false;
     $mpdf = new \Mpdf\Mpdf(['default_font' => 'arial']);
@@ -33,7 +33,7 @@ if(isset($_GET['printORS'])){
 // Queries
 // =================================================================================================== //
     $pg_query = "SELECT * 
-        FROM orstbl2023 AS o
+        FROM orstbl2025 AS o
         INNER JOIN payeedb AS p ON o.payeeid = p.payeeid
         WHERE o.ors_random ='$orsidtest' LIMIT 1";
     $pg_result = pg_query($pg_connection, $pg_query);
@@ -45,8 +45,8 @@ if(isset($_GET['printORS'])){
     while ($pg_row = pg_fetch_assoc($pg_result)) {
         $pg_payeename = $pg_row["payeename"];
         $pg_ors_number = $pg_row["ors_number"];
-        $pg_office = "";
-        // $pg_office = $pg_row["office"];
+        // $pg_office = "";
+        $pg_office = $pg_row["payeeoffice"];
         $pg_address = $pg_row["payeeaddr"];
         $pg_adr = $pg_row["address"];
         $pg_div = $pg_row["division"];
@@ -60,10 +60,7 @@ if(isset($_GET['printORS'])){
 
 // =================================================================================================== //
 // Queries
-
-
-//      
-
+ 
 
 // Etc
 // =================================================================================================== //
@@ -73,6 +70,7 @@ if(isset($_GET['printORS'])){
 // =================================================================================================== //
 // Etc
 
+// 
 
 // Print Form
 // =================================================================================================== //
@@ -157,7 +155,7 @@ $html1 =
             </tr>
             <tr>
                 <td style="width:15%; height: 400px; border:1; border-width: 0px 0px 0px 2px; vertical-align: top;"><center>';
-                $pg_query = "SELECT responcenter FROM orstbl2023 WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
+                $pg_query = "SELECT division FROM orstbl2025 WHERE ors_random ='$orsidtest' ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
                 
@@ -166,13 +164,13 @@ $html1 =
                 }
                 $showrespcent = array();
                 while ($pg_row = pg_fetch_assoc($pg_result)) {
-                    $showrespcent[] = $pg_row['responcenter'] .'<br>';
+                    $showrespcent[] = $pg_row['division'] .'<br>';
                 }
                 $htmlres='</center></td>
                 <td style="width:35%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;">';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest' 
                             ORDER BY ors_id ASC";
 
@@ -190,7 +188,7 @@ $html1 =
                 <td style="width:20%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;"><center>';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
@@ -207,10 +205,9 @@ $html1 =
                 $html3 = '</center></td>
                 <td style="width:15%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;"><center>';
 
-                // 
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
@@ -228,7 +225,7 @@ $html1 =
                 <td style="width:15%; height: 400px; border:1; border-width: 0px 2px 0px 1px; vertical-align: top;overflow: wrap"><center>';
 
                 $pg_query = "SELECT * 
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
@@ -255,7 +252,7 @@ $html1 =
                 <td style="width:15%; border:1; border-width: 0px 2px 2px 1px; vertical-align: bottom;text-align:right; font-weight:bold; font-size: 14px;overflow: wrap">';
 
                 $pg_query = "SELECT SUM(amount) as totalsum
-                            FROM orstbl2023
+                            FROM orstbl2025
                             WHERE ors_random ='$orsidtest'";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
@@ -271,7 +268,6 @@ $html1 =
             </tr>
         </tbody>
     </table>
-
     <table cellspacing="0" style="width: 100%;">
         <tbody>
             <tr>
@@ -415,7 +411,7 @@ $html1 =
 // Print Form
 
 // $finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . "<br><br>( <i>Continuing</i> )" . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
-$finalprint = $html1 . implode('<br>', $showrespcent) . $htmlres . implode('<br>', $showpartics) . $html2 . implode('<br>', $showmfopap) . $html3 . implode('<br>', $showuacs) . $html4 . implode('<br>', $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
+$finalprint = $html1 . implode( $showrespcent) . $htmlres . implode( $showpartics) . $html2 . implode( $showmfopap) . $html3 . implode( $showuacs) . $html4 . implode( $showamount) . $html5 . $showtotalsum . '&nbsp;' . $html6;
 
 // Print Document Function
 // =================================================================================================== //

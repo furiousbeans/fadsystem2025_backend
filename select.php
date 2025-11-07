@@ -1,5 +1,5 @@
 <?php
-require("connect.php");
+include("connect.php");
 
 
 
@@ -111,7 +111,6 @@ ORDER BY ors_numset DESC") ;
     catch (Exception $ex){
         die("Failed to run query". $ex);
     }
-// 
     http_response_code(200);
     while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
         $data[] = $row;
@@ -445,6 +444,32 @@ if(isset($_GET['readMFOPAP'])){
 
 }
 
+// 
+if (isset($_POST['selectLIBitems'])) {
+    $fundsource = $_POST['fundsource'];
+    $data = array();
+    try
+    {
+        $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource = ? AND year = '2025'");
+        $params = array($fundsource);
+        $stnt->execute($params);
+
+    }
+    catch (Exception $ex){
+        die("Failed to run query". $ex);
+    }
+
+    http_response_code(200);
+    while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+        $data[] = array("label"=> $row['lib_title'],"value"=>$row['lib_id'],"allot"=>$row['lib_allot'],"lib_id"=>$row['lib_id']);
+    }
+
+    echo json_encode($data);
+
+    $stnt = null;
+    $pdo = null;
+}
+
 // Read Particulars
 if (isset($_GET['readParticulars'])) {
     $project = $_GET['project'];
@@ -468,6 +493,7 @@ if(isset($_GET['getLastPayee'])){
     echo $lastpayee;
 }
 
+// 
 
 //Read ORS detail
 if(isset($_GET['readORSpayee'])){
