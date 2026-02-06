@@ -8,6 +8,8 @@ if (isset($data['username']) && isset($data['password'])) {
     $username = $data['username'];
     $password = $data['password'];
 
+// 
+
     // Fetch user from database
     $stmt = $pdo->prepare("SELECT * FROM usertbl WHERE username = :username");
     $stmt->execute(['username' => $username]);
@@ -23,6 +25,7 @@ if (isset($data['username']) && isset($data['password'])) {
             "fname" => $user['fname'], 
             "userpost" => $user['userpost'], 
             "userdiv" => $user['userdiv'], 
+            "updatedlogin" => $user['updatedlogin'], 
         ]);
     } else {
         echo json_encode(["success" => false, "message" => "Invalid credentials"]);

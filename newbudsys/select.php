@@ -4,13 +4,32 @@ include("../connect.php");
 
 if (isset($_POST['selectLIBitems'])) {
     $fundsource = $_POST['fundsource'];
+    $currentyear = date('Y');
+
     $data = array();
     try
     {
-        $stnt = $pdo->prepare("SELECT * FROM libtbl2025 WHERE prj_fundsource = ? AND year = '2025'");
-        $params = array($fundsource);
+        $stnt = $pdo->prepare("SELECT 
+                                    l.lib_id,
+                                    l.lib_title,
+                                    l.lib_allot,
+                                    (
+                                        l.lib_allot - COALESCE((
+                                            SELECT SUM(o.amount)
+                                            FROM orstbl2025 o
+                                            WHERE o.mfopap = ?
+                                            AND o.lib_id = l.lib_id
+                                            AND o.ors_random LIKE '%2026%'
+                                            AND o.isapproved = 1
+                                            AND o.isactive = 1
+                                        ), 0)
+                                    ) AS balance
+                                FROM libtbl2025 AS l
+                                WHERE l.prj_fundsource = ?
+                                AND l.year = '2026'");
+        $params = array($fundsource, $fundsource);
         $stnt->execute($params);
-
+// 
     }
     catch (Exception $ex){
         die("Failed to run query". $ex);
@@ -18,7 +37,7 @@ if (isset($_POST['selectLIBitems'])) {
 
     http_response_code(200);
     while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
-        $data[] = array("label"=> $row['lib_title'],"value"=>$row['lib_id'],"allot"=>$row['lib_allot'],"lib_id"=>$row['lib_id']);
+        $data[] = array("label"=> $row['lib_title'],"value"=>$row['lib_id'],"allot"=>$row['balance'],"lib_id"=>$row['lib_id']);
     }
 
     echo json_encode($data);
@@ -26,6 +45,7 @@ if (isset($_POST['selectLIBitems'])) {
     $stnt = null;
     $pdo = null;
 }
+
 
 
 // =========== SELECT ALL ORS ============= //
@@ -204,8 +224,34 @@ if(isset($_GET['readMFOPAP'])){
   $data = array();
   try
   {
-    //   $stnt = $pdo->prepare("SELECT DISTINCT prj_fund FROM projects ORDER BY prj_fund ASC");
-      $stnt = $pdo->prepare("SELECT DISTINCT prj_fundsource FROM libtbl2025 WHERE year = '2025' ORDER BY prj_fundsource ASC");
+    //   $stnt = $pdo->prepare("SELECT DISTINCT prj_fund FROM projectstbl2025 WHERE year = '2026' ORDER BY prj_fund ASC");
+      $stnt = $pdo->prepare("SELECT DISTINCT prj_fundsource FROM libtbl2025 WHERE year = '2026' ORDER BY prj_fundsource ASC");
+      $stnt->execute();
+  }
+  catch (Exception $ex){
+      die("Failed to run query". $ex);
+  }
+
+  http_response_code(200);
+  while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
+    //   $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund']);
+      $data[] = array("label"=> $row['prj_fundsource'],"value"=>$row['prj_fundsource']);
+  }
+
+  echo json_encode($data);
+
+  $stnt = null;
+  $pdo = null;
+
+}
+
+// 
+
+if(isset($_GET['readMFOPAP_addprj'])){
+  $data = array();
+  try
+  { 
+      $stnt = $pdo->prepare("SELECT DISTINCT prj_fundsource FROM libtbl2025 ORDER BY prj_fundsource ASC");
       $stnt->execute();
   }
   catch (Exception $ex){
@@ -226,6 +272,7 @@ if(isset($_GET['readMFOPAP'])){
 }
 // =========== SELECT MFOPAP ============= //
 
+// 
 
 // =========== SELECT PROJECT / EDIT ORS ============= //
 if(isset($_GET['readProjectFunding'])){
@@ -279,7 +326,8 @@ if(isset($_GET['readORSdetails'])){
                                       ors.createdby,
                                       ors.datecreated,
                                       ors.isforwardedto_budget,
-                                      ors.receivedbybudget
+                                      ors.receivedbybudget,
+                                      ors.isadmin
                                 FROM orstbl2025 as ors INNER JOIN payeedb AS pay ON pay.payeeid = ors.payeeid
                                 LEFT JOIN libtbl2025 AS lib25 ON lib25.lib_id = ors.lib_id
                                 WHERE ors.ors_random = ?
@@ -287,7 +335,7 @@ if(isset($_GET['readORSdetails'])){
         $params = array($refnum);
         $stnt->execute($params);
     }
-  
+//   
     catch (Exception $ex){
         die("Failed to run query". $ex);
     }
@@ -327,6 +375,7 @@ if(isset($_GET['readORSdetails'])){
 //     $stnt = null;
 //     $pdo = null;
 //   }
+// 
 // =========== Read ORS detail =========== // 
 
 
@@ -367,7 +416,7 @@ if(isset($_GET['readProjectDiv'])){
     $data = array();
 
     $userdiv = $_POST['userdiv'];
-
+    // 
     try
     {
         $stnt = $pdo->prepare("SELECT 
@@ -375,53 +424,106 @@ if(isset($_GET['readProjectDiv'])){
     p.prj_div,
     p.prj_title,
     p.prj_fund,
+    p.year,
     SUM(l.lib_allot) AS total_allotment,
+
     (
-        SELECT 
-            SUM(o.amount)
-        FROM 
-            orstbl2025 o
-        WHERE 
-            o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
-                AND o.isapproved = 1
-                AND o.isactive = 1
+        SELECT SUM(o.amount)
+        FROM orstbl2025 o
+        WHERE o.mfopap = p.prj_fund
+          AND o.ors_random LIKE CONCAT('%', p.year, '%')
+          AND o.isapproved = 1
+          AND o.isactive = 1
     ) AS total_obli,
-	(
+
+    (
         SUM(l.lib_allot) - (
-            SELECT 
-                SUM(o.amount)
-            FROM 
-                orstbl2025 o
-            WHERE 
-                o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
-                AND o.isapproved = 1
-                AND o.isactive = 1
+            SELECT SUM(o.amount)
+            FROM orstbl2025 o
+            WHERE o.mfopap = p.prj_fund
+              AND o.ors_random LIKE CONCAT('%', p.year, '%')
+              AND o.isapproved = 1
+              AND o.isactive = 1
         )
     ) AS balance,
+
     (
         (
-            SELECT 
-                SUM(o.amount)
-            FROM 
-                orstbl2025 o
-            WHERE 
-                o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
-                AND o.isapproved = 1
-                AND o.isactive = 1
+            SELECT SUM(o.amount)
+            FROM orstbl2025 o
+            WHERE o.mfopap = p.prj_fund
+              AND o.ors_random LIKE CONCAT('%', p.year, '%')
+              AND o.isapproved = 1
+              AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
     ) * 100 AS balance_percentage
-FROM 
-    projectstbl2025 p
-LEFT JOIN 
-    libtbl2025 l ON p.prj_id = l.prj_id
+
+FROM projectstbl2025 p
+LEFT JOIN libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
     p.prj_div = ?
+    AND p.year IN ('2025', '2026')
 GROUP BY 
-    p.prj_id, p.prj_div, p.prj_title, p.prj_fund
-ORDER BY p.prj_fund;") ;
+    p.prj_id, p.prj_div, p.prj_title, p.prj_fund, p.year
+ORDER BY 
+ p.year DESC,
+    p.prj_fund;
+") ;
+
+// $stnt = $pdo->prepare("SELECT 
+//     p.prj_id,
+//     p.prj_div,
+//     p.prj_title,
+//     p.prj_fund,
+//     SUM(l.lib_allot) AS total_allotment,
+//     (
+//         SELECT 
+//             SUM(o.amount)
+//         FROM 
+//             orstbl2025 o
+//         WHERE 
+//             o.mfopap = p.prj_fund
+// 			AND o.ors_random LIKE '%2025%'
+//                 AND o.isapproved = 1
+//                 AND o.isactive = 1
+//     ) AS total_obli,
+// 	(
+//         SUM(l.lib_allot) - (
+//             SELECT 
+//                 SUM(o.amount)
+//             FROM 
+//                 orstbl2025 o
+//             WHERE 
+//                 o.mfopap = p.prj_fund
+//                 AND o.ors_random LIKE '%2025%'
+//                 AND o.isapproved = 1
+//                 AND o.isactive = 1
+//         )
+//     ) AS balance,
+//     (
+//         (
+//             SELECT 
+//                 SUM(o.amount)
+//             FROM 
+//                 orstbl2025 o
+//             WHERE 
+//                 o.mfopap = p.prj_fund
+//                 AND o.ors_random LIKE '%2025%'
+//                 AND o.isapproved = 1
+//                 AND o.isactive = 1
+//         ) / NULLIF(SUM(l.lib_allot), 0)
+//     ) * 100 AS balance_percentage
+// FROM 
+//     projectstbl2025 p
+// LEFT JOIN 
+//     libtbl2025 l ON p.prj_id = l.prj_id
+// WHERE 
+//     p.prj_div = ?
+// GROUP BY 
+//     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
+// ORDER BY p.prj_fund;") ;
+
+
             $params = array($userdiv);
             $stnt->execute($params);
     }
@@ -450,7 +552,7 @@ if (isset($_GET['getProjTitle']) && isset($_POST['prjid'])) {
     try
     {
         $stnt = $pdo->prepare("SELECT
-    prj_title, prj_div
+    prj_title, prj_div, year, prj_fund
 FROM
     projectstbl2025
 WHERE
@@ -522,6 +624,7 @@ ORDER BY lib_id ASC") ;
 
 
 if(isset($_GET['readProjectFAD'])){
+    $saobyear = $_POST['year'];
   $data = array();
   try
   {
@@ -538,7 +641,7 @@ if(isset($_GET['readProjectFAD'])){
             orstbl2025 o
         WHERE 
             o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
+			AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
     ) AS total_obli,
@@ -550,7 +653,7 @@ if(isset($_GET['readProjectFAD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         )
@@ -563,7 +666,7 @@ if(isset($_GET['readProjectFAD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
@@ -573,11 +676,16 @@ FROM
 LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
-    p.prj_div = 'FAD'
+    p.prj_div = 'FAD' AND p.year = ?
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
-      $stnt->execute();
+
+
+        $year = $_POST['year']; 
+        $orsrandom = $_POST['year']; 
+
+        $stnt->execute(["%$orsrandom%", "%$orsrandom%", "%$orsrandom%", $year]);
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
@@ -597,6 +705,7 @@ ORDER BY p.prj_id;");
 
 
 if(isset($_GET['readProjectODD'])){
+    $saobyear = $_POST['year'];
   $data = array();
   try
   {
@@ -613,7 +722,7 @@ if(isset($_GET['readProjectODD'])){
             orstbl2025 o
         WHERE 
             o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
+			AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
     ) AS total_obli,
@@ -625,7 +734,7 @@ if(isset($_GET['readProjectODD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         )
@@ -638,7 +747,7 @@ if(isset($_GET['readProjectODD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
@@ -648,11 +757,15 @@ FROM
 LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
-    p.prj_div = 'OD/ODD'
+    p.prj_div = 'OD/ODD' AND p.year = ?
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
-      $stnt->execute();
+
+      $year = $_POST['year']; 
+        $orsrandom = $_POST['year']; 
+
+        $stnt->execute(["%$orsrandom%", "%$orsrandom%", "%$orsrandom%", $year]);
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
@@ -669,7 +782,7 @@ ORDER BY p.prj_id;");
   $pdo = null;
 }
 
-
+// 
 
 if(isset($_GET['readProjectSEID'])){
   $data = array();
@@ -688,7 +801,7 @@ if(isset($_GET['readProjectSEID'])){
             orstbl2025 o
         WHERE 
             o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
+			AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
     ) AS total_obli,
@@ -700,7 +813,7 @@ if(isset($_GET['readProjectSEID'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         )
@@ -713,7 +826,7 @@ if(isset($_GET['readProjectSEID'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
@@ -723,11 +836,15 @@ FROM
 LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
-    p.prj_div = 'SEID'
+    p.prj_div = 'SEID' AND p.year = ?
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
-      $stnt->execute();
+
+      $year = $_POST['year']; 
+        $orsrandom = $_POST['year']; 
+
+        $stnt->execute(["%$orsrandom%", "%$orsrandom%", "%$orsrandom%", $year]);
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
@@ -763,7 +880,7 @@ if(isset($_GET['readProjectSTHERPD'])){
             orstbl2025 o
         WHERE 
             o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
+			AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
     ) AS total_obli,
@@ -775,7 +892,7 @@ if(isset($_GET['readProjectSTHERPD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         )
@@ -788,7 +905,7 @@ if(isset($_GET['readProjectSTHERPD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
@@ -798,11 +915,15 @@ FROM
 LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
-    p.prj_div = 'STHERPD'
+    p.prj_div = 'STHERPD' AND p.year = ?
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
-      $stnt->execute();
+
+      $year = $_POST['year']; 
+        $orsrandom = $_POST['year']; 
+
+        $stnt->execute(["%$orsrandom%", "%$orsrandom%", "%$orsrandom%", $year]);
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
@@ -838,7 +959,7 @@ if(isset($_GET['readProjectSTSD'])){
             orstbl2025 o
         WHERE 
             o.mfopap = p.prj_fund
-			AND o.ors_random LIKE '%2025%'
+			AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
     ) AS total_obli,
@@ -850,7 +971,7 @@ if(isset($_GET['readProjectSTSD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         )
@@ -863,7 +984,7 @@ if(isset($_GET['readProjectSTSD'])){
                 orstbl2025 o
             WHERE 
                 o.mfopap = p.prj_fund
-                AND o.ors_random LIKE '%2025%'
+                AND o.ors_random LIKE ?
                 AND o.isapproved = 1
                 AND o.isactive = 1
         ) / NULLIF(SUM(l.lib_allot), 0)
@@ -873,11 +994,15 @@ FROM
 LEFT JOIN 
     libtbl2025 l ON p.prj_id = l.prj_id
 WHERE 
-    p.prj_div = 'STSD'
+    p.prj_div = 'STSD' AND p.year = ?
 GROUP BY 
     p.prj_id, p.prj_div, p.prj_title, p.prj_fund
 ORDER BY p.prj_id;");
-      $stnt->execute();
+
+    $year = $_POST['year']; 
+        $orsrandom = $_POST['year']; 
+
+        $stnt->execute(["%$orsrandom%", "%$orsrandom%", "%$orsrandom%", $year]);
   }
   catch (Exception $ex){
       die("Failed to run query". $ex);
@@ -893,3 +1018,6 @@ ORDER BY p.prj_id;");
   $stnt = null;
   $pdo = null;
 }
+
+
+// 

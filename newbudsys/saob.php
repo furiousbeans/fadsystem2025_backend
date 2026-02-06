@@ -346,6 +346,7 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['pera2a12_total'] = $row['pera2a12_total'];
 }
 
+// 
 // PERA 2a2
 try
 {
@@ -745,6 +746,7 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['cloth2a11_total'] = $row['cloth2a11_total'];
 }
 // clothing 2a12
+// 
 try
 {
     $stnt = $pdo->prepare("SELECT a.allotment AS cloth2a12_allot,
@@ -1749,6 +1751,8 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['philhealth1a1'] = $row['philhealth1a1'];
     $data['philhealth1a1_total'] = $row['philhealth1a1_total'];
 }
+
+
 // philhealth 2a11
 try
 {
@@ -1792,6 +1796,9 @@ while ($row = $stnt->fetch(PDO::FETCH_ASSOC)){
     $data['philhealth2a11'] = $row['philhealth2a11'];
     $data['philhealth2a11_total'] = $row['philhealth2a11_total'];
 }
+
+// 
+
 // philhealth 2a12
 try
 {
