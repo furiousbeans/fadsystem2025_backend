@@ -113,6 +113,8 @@ if(isset($_GET['readORSUser'])){
 
     $username = $_POST['uname'];
 
+    // 
+
     try
     {
         $stnt = $pdo->prepare("SELECT DISTINCT 
@@ -237,7 +239,6 @@ if(isset($_GET['readMFOPAP'])){
     //   $data[] = array("label"=> $row['prj_fund'],"value"=>$row['prj_fund']);
       $data[] = array("label"=> $row['prj_fundsource'],"value"=>$row['prj_fundsource']);
   }
-
   echo json_encode($data);
 
   $stnt = null;
@@ -307,6 +308,9 @@ if(isset($_GET['readORSdetails'])){
     $data = array();
     $refnum = $_POST['refnum'];
     try
+
+    // 
+    
     {
         $stnt = $pdo->prepare("SELECT ors.ors_id,
                                       pay.payeeName, 

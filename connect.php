@@ -13,7 +13,6 @@ $pg_dbname = "fadsystemdb";
 $pg_user = "postgres";
 $pg_password = "postgres";
 
-
 // MISDB
 // $pg_user = "misdev";
 // $pg_password = "misdev1234";
@@ -33,5 +32,7 @@ try {
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
+
+//  
 
 ?>

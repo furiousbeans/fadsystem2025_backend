@@ -20,6 +20,8 @@ if(isset($_GET['printORS'])){
 // Get ORS number
 // =================================================================================================== //
     $orsidtest = $_POST["id"];
+    $signame = "vince m. albuera";
+    $sigposition = "Project Technical Specialist I";
 // =================================================================================================== //
 // Get ORS number
 
@@ -29,6 +31,7 @@ if(isset($_GET['printORS'])){
 // $pg_user = "postgres";
 // $pg_password = "postgres";
 
+// 
 
 // Queries
 // =================================================================================================== //
@@ -168,12 +171,12 @@ $html1 =
                 }
                 $htmlres='</center></td>
                 <td style="width:35%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;">';
-
+                
                 $pg_query = "SELECT * 
                             FROM orstbl2025
                             WHERE ors_random ='$orsidtest' 
                             ORDER BY ors_id ASC";
-
+                // 
                 $pg_result = pg_query($pg_connection, $pg_query);
                 
                 if (!$pg_result) {
@@ -201,10 +204,8 @@ $html1 =
                 while ($pg_row = pg_fetch_assoc($pg_result)) {
                     $showmfopap[] = $pg_row['mfopap'] .'<br>';
                 }
-
                 $html3 = '</center></td>
                 <td style="width:15%; height: 400px; border:1; border-top: 0; border-bottom: 0; border-right: 0; vertical-align: top;"><center>';
-
 
                 $pg_query = "SELECT * 
                             FROM orstbl2025
@@ -212,7 +213,7 @@ $html1 =
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
-                
+                // https://www.facebook.com/share/r/1EGGqbY4hA/
                 if (!$pg_result) {
                     die("Error executing the query". pg_last_error($pg_connection));
                 }
@@ -220,17 +221,14 @@ $html1 =
                 while ($pg_row = pg_fetch_assoc($pg_result)) {
                     $showuacs[] = $pg_row['uacs'] .'<br>';
                 }
-
                 $html4='</center></td>
                 <td style="width:15%; height: 400px; border:1; border-width: 0px 2px 0px 1px; vertical-align: top;overflow: wrap"><center>';
-
                 $pg_query = "SELECT * 
                             FROM orstbl2025
                             WHERE ors_random ='$orsidtest'
                             ORDER BY ors_id ASC";
 
                 $pg_result = pg_query($pg_connection, $pg_query);
-                
                 if (!$pg_result) {
                     die("Error executing the query". pg_last_error($pg_connection));
                 }
@@ -238,8 +236,6 @@ $html1 =
                 while ($pg_row = pg_fetch_assoc($pg_result)) {
                     $showamount[] = number_format($pg_row['amount'],2) .'<br>';
                 }
-
-                // 
 
                 $html5 = '</center></td>
             </tr>
@@ -416,8 +412,8 @@ $finalprint = $html1 . implode( $showrespcent) . $htmlres . implode( $showpartic
 // Print Document Function
 // =================================================================================================== //
     $mpdf->AddPageByArray([
+        // 'sheet-size' => array(730, 210),
         'sheet-size' => array(210, 297),
-        // 'sheet-size' => array(216, 278),
         'orientation' => 'P',
         'margin-left' => 7,
         'margin-right' => 7,
@@ -428,6 +424,8 @@ $finalprint = $html1 . implode( $showrespcent) . $htmlres . implode( $showpartic
     $mpdf->WriteHTML($finalprint);
 
     $mpdf->Output();
+
+  
 // =================================================================================================== //
 // Print Document Function
 

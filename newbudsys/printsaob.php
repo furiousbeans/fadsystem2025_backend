@@ -2026,7 +2026,7 @@ $html3 =
 
 
 if($saobyear == '2026'){
-    $finalprint = $html1 . $html2 . $html3; 
+    $finalprint = $html1 . $html2 . $html3 . '<br>' . $html1 . $html2; 
 }
 else{
     $finalprint = $html1 . $html2 . $html3 . $html1 . $html2; 

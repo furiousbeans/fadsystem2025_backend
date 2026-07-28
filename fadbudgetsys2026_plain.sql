@@ -6,6 +6,7 @@
 -- Dumped by pg_dump version 17.2
 
 -- Started on 2026-02-06 16:51:52
+-- 
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,9 +18,11 @@ SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
-SET row_security = off;
+SET row_security = off; 
 
---
+-- 
+
+-- 
 -- TOC entry 2 (class 3079 OID 24721)
 -- Name: tablefunc; Type: EXTENSION; Schema: -; Owner: -
 --

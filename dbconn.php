@@ -14,7 +14,6 @@ $pg_password = "postgres";
 // $pg_user = "misdev";
 // $pg_password = "misdev1234";
 
-// 
 
 $pg_connection = pg_connect("host=$pg_host port=$pg_port dbname=$pg_dbname user=$pg_user password=$pg_password");
 
